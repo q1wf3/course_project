@@ -1,0 +1,21 @@
+{
+  "folders": [
+    {
+      "name": "course_project",
+      "path": "."
+    },
+    {
+      "name": "backend",
+      "path": "backend"
+    },
+    {
+      "name": "mobile",
+      "path": "mobile"
+    }
+  ],
+  "settings": {
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "files.encoding": "utf8"
+  }
+}
+
