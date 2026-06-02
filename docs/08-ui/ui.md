@@ -13,29 +13,6 @@
 
 ## Навигация
 
-```plantuml
-@startuml
-left to right direction
-rectangle "Вход USER" as Login
-rectangle "Список фильмов" as List
-rectangle "Панель администратора" as Admin
-rectangle "Детали фильма" as Details
-rectangle "Создание фильма" as Edit
-rectangle "Настройки" as Settings
-
-Login --> List
-Login --> Admin
-List --> Details
-List --> Edit
-Details --> Edit
-List --> Settings
-Settings --> Admin
-Admin --> List
-Settings --> Login
-Admin --> Login
-@enduml
-```
-
 ![Схема навигации](images/navigation.png)
 
 Схема навигации показывает, что пользователь после входа попадает либо в обычную коллекцию, либо в панель администратора в зависимости от роли. Нижняя панель и переходы между деталями, созданием фильма, профилем и настройками должны поддерживать быстрый возврат к основному сценарию.

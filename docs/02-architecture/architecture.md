@@ -16,34 +16,6 @@ PCMEF выбран как базовый архитектурный паттер
 
 ## Диаграмма пакетов
 
-```plantuml
-@startuml
-package "Mobile Client" {
-    [presentation] as P
-    [control: ViewModel] as VM
-    [foundation: Retrofit] as API
-    [foundation: Room DAO] as ROOM
-    P --> VM
-    VM --> API
-    VM --> ROOM
-}
-
-package "Spring Boot Server" {
-    [control: Controllers] as CTRL
-    [mediator: Services] as SVC
-    [entity: JPA Entities] as ENT
-    [foundation: Repositories] as REPO
-    database "PostgreSQL" as DB
-    CTRL --> SVC
-    SVC --> ENT
-    SVC --> REPO
-    REPO --> DB
-}
-
-API --> CTRL
-@enduml
-```
-
 ![Диаграмма пакетов](images/package-diagram.png)
 
 Диаграмма пакетов показывает физическое распределение кода по клиентской и серверной частям. Android-приложение содержит UI, ViewModel, сетевой слой и Room, а backend разделен на контроллеры, сервисы, сущности и репозитории.

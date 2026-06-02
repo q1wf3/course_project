@@ -53,4 +53,4 @@
 
 1. В локальной папке отсутствует `.git`, поэтому Git-статистика должна проверяться в GitHub-репозитории.
 2. Админка реализована через protected endpoints `/api/admin/**`; перед сдачей стоит сделать скрин Swagger с этими endpoints.
-3. Отчет JaCoCo уже сформирован локально в `backend/target/site/jacoco/`; перед сдачей нужно приложить скриншот `index.html` в `docs/images/test-coverage.png`.
+3. Отчет JaCoCo формируется локально в каталоге сборки `backend/target`; перед сдачей нужно приложить скриншот HTML-отчета в `docs/images/test-coverage.png`.

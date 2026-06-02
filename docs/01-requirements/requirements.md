@@ -38,34 +38,6 @@
 
 ## Use Case диаграмма
 
-```plantuml
-@startuml
-left to right direction
-actor "Гость" as Guest
-actor "Пользователь" as User
-actor "Администратор" as Admin
-usecase "Регистрация" as Register
-usecase "Вход" as Login
-usecase "Просмотр коллекции" as List
-usecase "Добавление фильма" as Create
-usecase "Редактирование фильма" as Update
-usecase "Удаление фильма" as Delete
-usecase "Поиск и фильтрация" as Search
-usecase "Изменение статуса просмотра" as Status
-usecase "Управление пользователями" as Users
-
-Guest --> Register
-Guest --> Login
-User --> List
-User --> Create
-User --> Update
-User --> Delete
-User --> Search
-User --> Status
-Admin --> Users
-@enduml
-```
-
 ![Диаграмма вариантов использования](images/usecase.png)
 
 Диаграмма показывает, какие функции доступны каждому типу пользователя. Гость может только войти или зарегистрироваться, обычный пользователь управляет личной коллекцией, а администратор получает отдельный сценарий управления учетными записями.
@@ -95,56 +67,6 @@ Admin --> Users
 | Постусловие | Пользователь видит найденные фильмы или пустое состояние |
 
 ## Domain Model
-
-```plantuml
-@startuml
-class User {
-    +id : UUID
-    +email : String
-    +passwordHash : String
-    +role : Role
-}
-
-class Movie {
-    +id : UUID
-    +title : String
-    +releaseYear : int
-    +director : String
-    +durationMinutes : int
-}
-
-class CollectionItem {
-    +id : UUID
-    +status : WatchStatus
-    +rating : int
-    +note : String
-    +favorite : boolean
-}
-
-class Genre {
-    +id : UUID
-    +name : String
-}
-
-enum Role {
-    USER
-    ADMIN
-}
-
-enum WatchStatus {
-    PLANNED
-    WATCHING
-    WATCHED
-    DROPPED
-}
-
-User "1" --> "0..*" CollectionItem : owns
-Movie "1" --> "0..*" CollectionItem : included in
-Movie "0..*" --> "0..*" Genre : has
-User --> Role
-CollectionItem --> WatchStatus
-@enduml
-```
 
 ![Модель требований и предметной области](images/requirements.png)
 

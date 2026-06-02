@@ -132,11 +132,13 @@ cd backend
 mvn test jacoco:report
 ```
 
-После выполнения отчет будет доступен локально:
+После выполнения отчет будет доступен локально в каталоге Maven-сборки:
 
 ```text
 backend/target/site/jacoco/index.html
 ```
+
+Каталог `backend/target` является build artifact и не добавляется в git.
 
 Проверка компиляции Android-клиента:
 

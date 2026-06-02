@@ -2,60 +2,11 @@
 
 ## Диаграмма последовательности: добавление фильма
 
-```plantuml
-@startuml
-actor User
-participant "Compose Screen" as UI
-participant "MovieViewModel" as VM
-participant "Retrofit API" as API
-participant "MovieController" as C
-participant "MovieService" as S
-participant "MovieRepository" as R
-database "PostgreSQL" as DB
-
-User -> UI : Заполняет форму
-UI -> VM : saveMovie(command)
-VM -> API : POST /api/movies
-API -> C : HTTP request
-C -> S : createMovie(command, userId)
-S -> R : save(movie)
-R -> DB : INSERT
-DB --> R : saved row
-R --> S : Movie
-S --> C : MovieDto
-C --> API : 201 Created
-API --> VM : MovieDto
-VM --> UI : Success state
-@enduml
-```
-
 ![Диаграмма последовательности добавления фильма](images/create-film.png)
 
 Диаграмма показывает, что создание фильма проходит через Android UI, ViewModel, Retrofit API и backend-контроллер. Сохранение выполняется на сервере: создается карточка фильма и запись коллекции конкретного пользователя.
 
 ## Диаграмма последовательности: поиск
-
-```plantuml
-@startuml
-actor User
-participant UI
-participant VM
-database "Room" as Cache
-participant API
-
-User -> UI : Вводит поисковую строку
-UI -> VM : search(query)
-VM -> API : GET /api/movies/search
-alt сеть доступна
-    API --> VM : список фильмов
-    VM -> Cache : обновить кэш
-else сеть недоступна
-    VM -> Cache : поиск в локальном кэше
-    Cache --> VM : кэшированные фильмы
-end
-VM --> UI : состояние результата
-@enduml
-```
 
 ![Диаграмма последовательности оффлайн-поиска](../images/report-offline-cache-sequence.png)
 
