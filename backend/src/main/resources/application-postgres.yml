@@ -22,3 +22,9 @@ springdoc:
   swagger-ui:
     path: /swagger-ui/index.html
 
+app:
+  jwt:
+    secret: movie-collection-dev-secret-change-me
+  admin:
+    email: admin@movie.local
+    password: admin123

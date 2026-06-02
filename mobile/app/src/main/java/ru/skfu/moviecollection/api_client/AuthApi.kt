@@ -18,6 +18,7 @@ data class AuthRequest(
 
 data class AuthResponse(
     val token: String,
-    val userId: String
+    val userId: String,
+    val email: String?,
+    val role: String?
 )
-

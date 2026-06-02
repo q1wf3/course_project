@@ -1,4 +1,22 @@
 services:
+  backend:
+    build:
+      context: ./backend
+    container_name: movie_collection_backend
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/movie_collection
+      SPRING_DATASOURCE_USERNAME: movie_user
+      SPRING_DATASOURCE_PASSWORD: movie_password
+      APP_JWT_SECRET: movie-collection-compose-secret-change-me
+      APP_ADMIN_EMAIL: admin@movie.local
+      APP_ADMIN_PASSWORD: admin123
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   postgres:
     image: postgres:16
     container_name: movie_collection_postgres
@@ -11,6 +29,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U movie_user -d movie_collection"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   pgadmin:
     image: dpage/pgadmin4:8
@@ -23,7 +46,8 @@ services:
       - "5050:80"
     depends_on:
       - postgres
+    profiles:
+      - tools
 
 volumes:
   postgres_data:
-

@@ -73,6 +73,14 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     @Transactional(readOnly = true)
+    public MovieDto getMovie(UUID userId, UUID movieId) {
+        var item = collectionItemRepository.findByOwnerIdAndMovieId(userId, movieId)
+                .orElseThrow(() -> new IllegalArgumentException("Фильм не найден в коллекции"));
+        return movieMapper.toDto(item);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<MovieDto> getCollection(UUID userId) {
         return collectionItemRepository.findByOwnerIdOrderByMovieTitle(userId)
                 .stream()

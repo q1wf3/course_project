@@ -6,8 +6,8 @@
 |---|---|
 | Presentation | Compose-экраны: вход, список, детали, редактирование, настройки |
 | Control | ViewModel на клиенте, REST controllers на сервере |
-| Mediator | `MovieService`, `AuthService`, `GenreService`, `CollectionService` |
-| Entity | `User`, `Movie`, `Genre`, `CollectionItem`, `Review`, `Tag` |
+| Mediator | `MovieService`, `AuthService`, `JwtService` |
+| Entity | `User`, `Role`, `Movie`, `Genre`, `CollectionItem`, `WatchStatus` |
 | Foundation | Spring Data repositories, Room DAO, Retrofit API |
 
 ## Бизнес-правила
@@ -49,8 +49,8 @@ mobile/app/src/main/java/ru/skfu/moviecollection/
 Минимально тестируются:
 
 - создание фильма;
-- запрет дублирования фильма в коллекции;
+- получение фильма из коллекции пользователя;
 - изменение статуса просмотра;
+- генерация и проверка JWT;
 - поиск по названию;
 - маппинг Entity → DTO.
-

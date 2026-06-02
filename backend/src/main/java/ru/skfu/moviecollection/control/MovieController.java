@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import ru.skfu.moviecollection.config.JwtService;
 import ru.skfu.moviecollection.control.dto.CreateMovieCommand;
 import ru.skfu.moviecollection.control.dto.MovieDto;
 import ru.skfu.moviecollection.entity.WatchStatus;
@@ -24,14 +25,24 @@ import ru.skfu.moviecollection.mediator.MovieService;
 @RequestMapping("/api/movies")
 public class MovieController {
     private final MovieService movieService;
+    private final JwtService jwtService;
 
-    public MovieController(MovieService movieService) {
+    public MovieController(MovieService movieService, JwtService jwtService) {
         this.movieService = movieService;
+        this.jwtService = jwtService;
     }
 
     @GetMapping
     public List<MovieDto> list(@RequestHeader("Authorization") String authorization) {
         return movieService.getCollection(resolveUserId(authorization));
+    }
+
+    @GetMapping("/{movieId}")
+    public MovieDto getById(
+            @RequestHeader("Authorization") String authorization,
+            @PathVariable UUID movieId
+    ) {
+        return movieService.getMovie(resolveUserId(authorization), movieId);
     }
 
     @GetMapping("/search")
@@ -77,11 +88,6 @@ public class MovieController {
     }
 
     private UUID resolveUserId(String authorization) {
-        var prefix = "Bearer demo.";
-        if (authorization == null || !authorization.startsWith(prefix)) {
-            throw new IllegalArgumentException("Некорректный демонстрационный токен");
-        }
-        return UUID.fromString(authorization.substring(prefix.length()));
+        return jwtService.resolveUserId(authorization);
     }
 }
-

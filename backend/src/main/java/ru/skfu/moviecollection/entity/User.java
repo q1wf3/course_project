@@ -32,6 +32,12 @@ public class User {
         this.passwordHash = passwordHash;
     }
 
+    public User(String email, String passwordHash, Role role) {
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.role = role == null ? Role.USER : role;
+    }
+
     public UUID getId() {
         return id;
     }
@@ -47,5 +53,11 @@ public class User {
     public Role getRole() {
         return role;
     }
-}
 
+    public void changeRole(Role newRole) {
+        if (newRole == null) {
+            throw new IllegalArgumentException("Роль пользователя обязательна");
+        }
+        role = newRole;
+    }
+}

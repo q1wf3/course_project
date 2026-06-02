@@ -1,0 +1,234 @@
+openapi: 3.0.3
+info:
+  title: Movie Collection API
+  version: 0.1.0
+  description: REST API для мобильного приложения Movie Collection.
+servers:
+  - url: http://localhost:8080/api
+security:
+  - bearerAuth: []
+paths:
+  /auth/register:
+    post:
+      summary: Регистрация пользователя
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        '200':
+          description: Учетная запись создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+  /auth/login:
+    post:
+      summary: Вход пользователя
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        '200':
+          description: JWT выдан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+  /movies:
+    get:
+      summary: Получить коллекцию пользователя
+      responses:
+        '200':
+          description: Список фильмов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MovieDto'
+    post:
+      summary: Создать фильм
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMovieCommand'
+      responses:
+        '201':
+          description: Фильм создан
+  /movies/search:
+    get:
+      summary: Поиск фильмов
+      parameters:
+        - name: query
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/WatchStatus'
+      responses:
+        '200':
+          description: Результаты поиска
+  /movies/{movieId}:
+    get:
+      summary: Получить фильм
+      parameters:
+        - $ref: '#/components/parameters/MovieId'
+      responses:
+        '200':
+          description: Фильм найден
+    put:
+      summary: Обновить фильм
+      parameters:
+        - $ref: '#/components/parameters/MovieId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMovieCommand'
+      responses:
+        '200':
+          description: Фильм обновлен
+    delete:
+      summary: Удалить фильм из коллекции
+      parameters:
+        - $ref: '#/components/parameters/MovieId'
+      responses:
+        '204':
+          description: Удалено
+  /movies/{movieId}/status:
+    put:
+      summary: Изменить статус просмотра
+      parameters:
+        - $ref: '#/components/parameters/MovieId'
+        - name: status
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/WatchStatus'
+      responses:
+        '200':
+          description: Статус изменен
+  /admin/stats:
+    get:
+      summary: Статистика администратора
+      responses:
+        '200':
+          description: Количество пользователей, фильмов и записей коллекций
+  /admin/users:
+    get:
+      summary: Список пользователей
+      responses:
+        '200':
+          description: Пользователи
+  /admin/users/{userId}/movies:
+    get:
+      summary: Коллекция выбранного пользователя
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Фильмы пользователя
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    MovieId:
+      name: movieId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    AuthRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        userId:
+          type: string
+          format: uuid
+        email:
+          type: string
+        role:
+          type: string
+          enum: [USER, ADMIN]
+    CreateMovieCommand:
+      type: object
+      required: [title, releaseYear, durationMinutes, status]
+      properties:
+        title:
+          type: string
+        releaseYear:
+          type: integer
+        director:
+          type: string
+        durationMinutes:
+          type: integer
+        description:
+          type: string
+        coverUrl:
+          type: string
+        category:
+          type: string
+        status:
+          $ref: '#/components/schemas/WatchStatus'
+        rating:
+          type: integer
+        note:
+          type: string
+    MovieDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        releaseYear:
+          type: integer
+        director:
+          type: string
+        coverUrl:
+          type: string
+        category:
+          type: string
+        status:
+          $ref: '#/components/schemas/WatchStatus'
+        rating:
+          type: integer
+        favorite:
+          type: boolean
+    WatchStatus:
+      type: string
+      enum: [PLANNED, WATCHING, WATCHED, DROPPED]
+

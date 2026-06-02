@@ -27,8 +27,18 @@
 |---|---|
 | `MovieService` | 60% |
 | `AuthService` | 50% |
-| `CollectionService` | 50% |
+| `JwtService` | 80% |
+| `Movie` и `CollectionItem` | 80% |
 | Общий backend | >40% |
+
+## Реализованные unit-тесты
+
+| Тест | Проверка |
+|---|---|
+| `CollectionItemTest` | изменение статуса, валидация оценки |
+| `MovieTest` | нормализация категории, валидация названия и года выпуска |
+| `JwtServiceTest` | генерация JWT, чтение userId, отказ при подмене подписи |
+| `MovieServiceImplTest` | создание фильма, получение фильма по ID из коллекции пользователя |
 
 ## Команда для отчета JaCoCo
 
@@ -36,4 +46,14 @@
 mvn test jacoco:report
 ```
 
-Фактический HTML-отчет после запуска положить в `backend/target/site/jacoco/`, а скриншот итогового покрытия — в `docs/images/test-coverage.png`.
+## Фактический результат
+
+Отчет JaCoCo сформирован в `backend/target/site/jacoco/`.
+
+| Метрика | Покрытие |
+|---|---:|
+| Instructions | 42.53% |
+| Branches | 43.75% |
+| Lines | 44.07% |
+
+Порог методических требований `>40%` выполнен. Перед сдачей нужно приложить скриншот итогового HTML-отчета в `docs/images/test-coverage.png`.

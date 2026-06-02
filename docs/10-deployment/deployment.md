@@ -7,6 +7,7 @@
 | Java JDK | 17+ |
 | Maven | 3.8+ |
 | PostgreSQL | 15+ |
+| Docker Desktop | актуальная стабильная версия |
 | Android Studio | актуальная стабильная версия |
 | Android SDK | API 34+ |
 
@@ -19,6 +20,41 @@ GRANT ALL PRIVILEGES ON DATABASE movie_collection TO movie_user;
 ```
 
 ## Запуск backend
+
+### Быстрый запуск через Docker Compose
+
+```bash
+docker compose up -d postgres backend
+```
+
+Swagger UI:
+
+```text
+http://localhost:8080/swagger-ui/index.html
+```
+
+Backend работает с PostgreSQL из compose-сервиса `postgres`. Начальный администратор создается автоматически:
+
+```text
+admin@movie.local / admin123
+```
+
+pgAdmin запускается только при необходимости:
+
+```bash
+docker compose --profile tools up -d pgadmin
+```
+
+Доступ к pgAdmin:
+
+```text
+http://localhost:5050
+admin@admin.ru / admin
+```
+
+### Локальный запуск через Maven
+
+Локальный запуск также использует PostgreSQL, а не H2. Перед стартом должна быть создана БД из раздела настройки PostgreSQL.
 
 ```bash
 cd backend
@@ -47,7 +83,7 @@ http://10.0.2.2:8080/api
 
 ```bash
 cd mobile
-gradle assembleDebug
+./gradlew assembleDebug
 ```
 
 Итоговый APK находится в:

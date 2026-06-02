@@ -11,6 +11,8 @@ public interface MovieService {
 
     MovieDto updateMovie(UUID userId, UUID movieId, CreateMovieCommand command);
 
+    MovieDto getMovie(UUID userId, UUID movieId);
+
     List<MovieDto> getCollection(UUID userId);
 
     List<MovieDto> search(UUID userId, String query, WatchStatus status);
@@ -19,4 +21,3 @@ public interface MovieService {
 
     void deleteFromCollection(UUID userId, UUID movieId);
 }
-

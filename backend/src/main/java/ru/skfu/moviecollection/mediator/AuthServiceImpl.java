@@ -3,6 +3,7 @@ package ru.skfu.moviecollection.mediator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.skfu.moviecollection.config.JwtService;
 import ru.skfu.moviecollection.control.dto.AuthRequest;
 import ru.skfu.moviecollection.control.dto.AuthResponse;
 import ru.skfu.moviecollection.entity.User;
@@ -13,10 +14,12 @@ import ru.skfu.moviecollection.foundation.UserRepository;
 public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -41,8 +44,6 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private AuthResponse toResponse(User user) {
-        var demoToken = "demo." + user.getId();
-        return new AuthResponse(demoToken, user.getId(), user.getEmail());
+        return new AuthResponse(jwtService.generateToken(user), user.getId(), user.getEmail(), user.getRole());
     }
 }
-

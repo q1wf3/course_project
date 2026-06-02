@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -25,47 +26,72 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun SettingsScreen(
+    isAdmin: Boolean,
+    darkTheme: Boolean,
+    onDarkThemeChange: (Boolean) -> Unit,
     onBack: () -> Unit,
+    onOpenAdmin: () -> Unit,
     onLogout: () -> Unit
 ) {
-    var offlineCache by remember { mutableStateOf(true) }
     var smartSorting by remember { mutableStateOf(true) }
+    val colors = MaterialTheme.colorScheme
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF8FAFC))
-            .padding(18.dp)
+            .background(colors.background)
+            .statusBarsPadding()
+            .padding(horizontal = 18.dp, vertical = 22.dp)
     ) {
-        Text("Настройки", style = MaterialTheme.typography.headlineLarge)
+        Text("⚙ Настройки", style = MaterialTheme.typography.headlineLarge)
         Text(
-            "Параметры клиента и демонстрационные фишки приложения.",
-            color = Color(0xFF6B7280),
+            "Внешний вид и поведение приложения.",
+            color = colors.onSurface.copy(alpha = 0.66f),
             modifier = Modifier.padding(top = 6.dp, bottom = 18.dp)
         )
-        SettingCard("Оффлайн-кэш", "Показывать фильмы из Room без интернета", offlineCache) {
-            offlineCache = it
+        SettingCard("Темная тема", "Сделать экран темным. Можно переключить обратно на светлый.", darkTheme) {
+            onDarkThemeChange(it)
         }
-        SettingCard("Умная сортировка", "Поднимать избранное и высокие оценки выше", smartSorting) {
+        SettingCard("Сохранять фильмы на телефоне", "Коллекция откроется даже без интернета и без запущенного сервера.", true) {
+        }
+        SettingCard("Сначала важное", "Показывать просмотренные и высоко оцененные фильмы выше.", smartSorting) {
             smartSorting = it
         }
         Card(
             shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = colors.surface),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 12.dp)
         ) {
             Column(modifier = Modifier.padding(18.dp)) {
-                Text("API endpoint", style = MaterialTheme.typography.titleLarge)
-                Text("http://10.0.2.2:8080/api", color = Color(0xFF6B7280))
+                Text("Адрес сервера", style = MaterialTheme.typography.titleLarge)
+                Text(
+                    "Используется для входа и синхронизации коллекции.",
+                    color = colors.onSurface.copy(alpha = 0.66f),
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+                Text("http://10.0.2.2:8080/api", color = colors.primary, modifier = Modifier.padding(top = 8.dp))
             }
         }
-        Row(modifier = Modifier.padding(top = 18.dp)) {
+        if (isAdmin) {
+            Button(
+                onClick = onOpenAdmin,
+                colors = ButtonDefaults.buttonColors(containerColor = colors.primary),
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 14.dp)
+            ) {
+                Text("Открыть админку")
+            }
+        }
+        Column(modifier = Modifier.padding(top = 18.dp)) {
             Button(
                 onClick = onBack,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6D28D9)),
-                shape = RoundedCornerShape(16.dp)
+                colors = ButtonDefaults.buttonColors(containerColor = colors.primary),
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Назад")
             }
@@ -73,7 +99,9 @@ fun SettingsScreen(
                 onClick = onLogout,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444)),
                 shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.padding(start = 10.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp)
             ) {
                 Text("Выйти")
             }
@@ -88,9 +116,10 @@ private fun SettingCard(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
+    val colors = MaterialTheme.colorScheme
     Card(
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = colors.surface),
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 12.dp)
@@ -98,10 +127,9 @@ private fun SettingCard(
         Row(modifier = Modifier.padding(18.dp)) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(title, style = MaterialTheme.typography.titleLarge)
-                Text(description, color = Color(0xFF6B7280), modifier = Modifier.padding(top = 4.dp))
+                Text(description, color = colors.onSurface.copy(alpha = 0.66f), modifier = Modifier.padding(top = 4.dp))
             }
             Switch(checked = checked, onCheckedChange = onCheckedChange)
         }
     }
 }
-

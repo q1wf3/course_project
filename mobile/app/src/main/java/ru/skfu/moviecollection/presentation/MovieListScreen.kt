@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -35,9 +36,12 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import ru.skfu.moviecollection.control.MovieUiState
 import ru.skfu.moviecollection.control.MovieViewModel
 import ru.skfu.moviecollection.model.MovieDto
@@ -49,27 +53,26 @@ fun MovieListScreen(
     viewModel: MovieViewModel,
     onMovieClick: (MovieDto) -> Unit,
     onAddClick: () -> Unit,
-    onSettingsClick: () -> Unit
+    onSeedDemoClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
+    val colors = MaterialTheme.colorScheme
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF8FAFC))
+            .background(colors.background)
     ) {
-        Header(onAddClick, onSettingsClick)
-
         when (val currentState = state) {
             MovieUiState.Loading -> Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = Color(0xFF6D28D9))
+                CircularProgressIndicator(color = colors.primary)
             }
 
-            MovieUiState.Empty -> EmptyState(onAddClick)
-            is MovieUiState.Error -> ErrorState(currentState.message, onAddClick)
+            MovieUiState.Empty -> EmptyState(onAddClick, onSeedDemoClick)
+            is MovieUiState.Error -> ErrorState(currentState.message, onAddClick, onSeedDemoClick)
             is MovieUiState.Success -> MovieList(
                 movies = currentState.movies,
                 offline = currentState.offline,
@@ -80,57 +83,57 @@ fun MovieListScreen(
 }
 
 @Composable
-private fun Header(
-    onAddClick: () -> Unit,
-    onSettingsClick: () -> Unit
-) {
-    Column(
+private fun Header() {
+    val colors = MaterialTheme.colorScheme
+    Card(
+        shape = RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp),
+        colors = CardDefaults.cardColors(containerColor = colors.surface),
         modifier = Modifier
             .fillMaxWidth()
             .background(
                 Brush.linearGradient(
-                    listOf(Color(0xFF111827), Color(0xFF6D28D9), Color(0xFFDB2777))
+                    listOf(colors.background, colors.surface, colors.surfaceVariant)
                 )
             )
             .statusBarsPadding()
-            .padding(start = 22.dp, end = 22.dp, top = 46.dp, bottom = 24.dp)
+            .padding(start = 14.dp, end = 14.dp, top = 18.dp, bottom = 8.dp)
     ) {
-        Text("Моя фильмотека", color = Color.White, style = MaterialTheme.typography.headlineLarge)
-        Text(
-            "Фильмы, обложки, категории, статусы просмотра и оценки.",
-            color = Color(0xFFEDE9FE),
-            modifier = Modifier.padding(top = 8.dp)
-        )
-        Row(
-            modifier = Modifier.padding(top = 20.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Button(
-                onClick = onAddClick,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = Color(0xFF6D28D9)
-                ),
-                shape = RoundedCornerShape(18.dp)
+        Column(modifier = Modifier.padding(18.dp)) {
+            Text("Movie Collection", color = colors.onSurface, style = MaterialTheme.typography.headlineLarge)
+            Text(
+                "Личная кинополка: постеры, статусы, оценки и подборки.",
+                color = colors.onSurface.copy(alpha = 0.66f),
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.padding(top = 16.dp)
             ) {
-                Text("+ Добавить")
-            }
-            Button(
-                onClick = onSettingsClick,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0x33FFFFFF),
-                    contentColor = Color.White
-                ),
-                shape = RoundedCornerShape(18.dp)
-            ) {
-                Text("Настройки")
+                HeaderChip("Фильмы", "вся коллекция")
+                HeaderChip("Подборки", "по жанрам")
+                HeaderChip("Без интернета", "сохранено")
             }
         }
     }
 }
 
 @Composable
-private fun EmptyState(onAddClick: () -> Unit) {
+private fun HeaderChip(title: String, subtitle: String) {
+    val colors = MaterialTheme.colorScheme
+    Surface(
+        color = colors.surfaceVariant,
+        shape = RoundedCornerShape(999.dp)
+    ) {
+        Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 9.dp)) {
+            Text(title, color = colors.primary, fontSize = 15.sp)
+            Text(subtitle, color = colors.onSurface.copy(alpha = 0.56f), fontSize = 12.sp)
+        }
+    }
+}
+
+@Composable
+private fun EmptyState(onAddClick: () -> Unit, onSeedDemoClick: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -139,7 +142,7 @@ private fun EmptyState(onAddClick: () -> Unit) {
     ) {
         Card(
             shape = RoundedCornerShape(30.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = colors.surface),
             modifier = Modifier
                 .fillMaxWidth()
                 .shadow(16.dp, RoundedCornerShape(30.dp))
@@ -151,16 +154,24 @@ private fun EmptyState(onAddClick: () -> Unit) {
                 Text("Коллекция пока пуста", style = MaterialTheme.typography.titleLarge)
                 Text(
                     "Добавь первый фильм: русское название, обложку, категорию, статус и оценку.",
-                    color = Color(0xFF6B7280),
+                    color = colors.onSurface.copy(alpha = 0.66f),
                     modifier = Modifier.padding(top = 10.dp)
                 )
                 Button(
                     onClick = onAddClick,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6D28D9)),
+                    colors = ButtonDefaults.buttonColors(containerColor = colors.primary),
                     shape = RoundedCornerShape(18.dp),
                     modifier = Modifier.padding(top = 18.dp)
                 ) {
                     Text("Добавить фильм")
+                }
+                Button(
+                    onClick = onSeedDemoClick,
+                    colors = ButtonDefaults.buttonColors(containerColor = colors.surfaceVariant, contentColor = colors.primary),
+                    shape = RoundedCornerShape(18.dp),
+                    modifier = Modifier.padding(top = 10.dp)
+                ) {
+                    Text("Заполнить 15 фильмами")
                 }
             }
         }
@@ -168,21 +179,25 @@ private fun EmptyState(onAddClick: () -> Unit) {
 }
 
 @Composable
-private fun ErrorState(message: String, onAddClick: () -> Unit) {
+private fun ErrorState(message: String, onAddClick: () -> Unit, onSeedDemoClick: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
     Column(modifier = Modifier.padding(22.dp)) {
         Surface(
-            color = Color(0xFFFEE2E2),
+            color = colors.surfaceVariant,
             shape = RoundedCornerShape(18.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
                 text = "Ошибка: $message",
-                color = Color(0xFF991B1B),
+                color = colors.onSurface,
                 modifier = Modifier.padding(16.dp)
             )
         }
         Button(onClick = onAddClick, modifier = Modifier.padding(top = 16.dp)) {
             Text("Добавить вручную")
+        }
+        Button(onClick = onSeedDemoClick, modifier = Modifier.padding(top = 10.dp)) {
+            Text("Заполнить 15 фильмами")
         }
     }
 }
@@ -193,14 +208,16 @@ private fun MovieList(
     offline: Boolean,
     onMovieClick: (MovieDto) -> Unit
 ) {
+    val colors = MaterialTheme.colorScheme
     val groupedMovies = movies
         .groupBy { normalizeCategory(it.category) }
         .toSortedMap(compareBy<String> { if (it == NoCategory) "яяя" else it.lowercase() })
 
     Column {
+        Header()
         if (offline) {
             Surface(
-                color = Color(0xFFFEF3C7),
+                color = colors.surfaceVariant,
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -208,7 +225,7 @@ private fun MovieList(
             ) {
                 Text(
                     "Оффлайн-режим: данные загружены из кэша",
-                    color = Color(0xFF92400E),
+                    color = colors.tertiary,
                     modifier = Modifier.padding(14.dp)
                 )
             }
@@ -220,6 +237,7 @@ private fun MovieList(
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
             item {
+                LibraryOverview(movies)
                 CategoryCollections(groupedMovies)
             }
             groupedMovies.forEach { (category, categoryMovies) ->
@@ -227,7 +245,7 @@ private fun MovieList(
                     Text(
                         text = category,
                         style = MaterialTheme.typography.titleLarge,
-                        color = Color(0xFF111827),
+                        color = colors.onSurface,
                         modifier = Modifier.padding(top = 18.dp, bottom = 8.dp)
                     )
                 }
@@ -243,13 +261,48 @@ private fun MovieList(
 }
 
 @Composable
+private fun LibraryOverview(movies: List<MovieDto>) {
+    val colors = MaterialTheme.colorScheme
+    val watchedCount = movies.count { it.status.name == "WATCHED" }
+    val plannedCount = movies.count { it.status.name == "PLANNED" }
+
+    Card(
+        shape = RoundedCornerShape(22.dp),
+        colors = CardDefaults.cardColors(containerColor = colors.surface),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp)
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(16.dp)
+        ) {
+            MiniStat("Всего", movies.size.toString(), Modifier.weight(1f))
+            MiniStat("Просмотрено", watchedCount.toString(), Modifier.weight(1f))
+            MiniStat("План", plannedCount.toString(), Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+private fun MiniStat(label: String, value: String, modifier: Modifier = Modifier) {
+    val colors = MaterialTheme.colorScheme
+    Column(modifier = modifier.heightIn(min = 54.dp)) {
+        Text(value, style = MaterialTheme.typography.titleLarge, color = colors.onSurface)
+        Text(label, color = colors.onSurface.copy(alpha = 0.62f), fontSize = 13.sp)
+    }
+}
+
+@Composable
 private fun CategoryCollections(groupedMovies: Map<String, List<MovieDto>>) {
     if (groupedMovies.isEmpty()) return
+    val colors = MaterialTheme.colorScheme
 
     Text(
         text = "Подборки",
         style = MaterialTheme.typography.titleLarge,
-        color = Color(0xFF111827),
+        color = colors.onSurface,
         modifier = Modifier.padding(top = 18.dp, bottom = 10.dp)
     )
     LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -262,10 +315,11 @@ private fun CategoryCollections(groupedMovies: Map<String, List<MovieDto>>) {
 @Composable
 private fun CollectionCard(category: String, movies: List<MovieDto>) {
     val watchedCount = movies.count { it.status.name == "WATCHED" }
+    val colors = MaterialTheme.colorScheme
 
     Card(
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = colors.surface),
         modifier = Modifier
             .width(246.dp)
             .shadow(4.dp, RoundedCornerShape(24.dp))
@@ -280,10 +334,10 @@ private fun CollectionCard(category: String, movies: List<MovieDto>) {
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                Text("${movies.size} фильмов", color = Color(0xFF6B7280))
+                Text("${movies.size} фильмов", color = colors.onSurface.copy(alpha = 0.66f))
                 Text(
                     "$watchedCount из ${movies.size} просмотрено",
-                    color = Color(0xFF6D28D9),
+                    color = colors.primary,
                     modifier = Modifier.padding(top = 6.dp)
                 )
             }
@@ -293,10 +347,11 @@ private fun CollectionCard(category: String, movies: List<MovieDto>) {
 
 @Composable
 private fun MovieCard(rank: Int, movie: MovieDto, onMovieClick: (MovieDto) -> Unit) {
+    val colors = MaterialTheme.colorScheme
     Card(
         onClick = { onMovieClick(movie) },
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = colors.surface),
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
@@ -305,7 +360,7 @@ private fun MovieCard(rank: Int, movie: MovieDto, onMovieClick: (MovieDto) -> Un
         Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = rank.toString(),
-                color = Color(0xFF111827),
+                color = colors.onSurface.copy(alpha = 0.42f),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.width(26.dp)
             )
@@ -320,13 +375,13 @@ private fun MovieCard(rank: Int, movie: MovieDto, onMovieClick: (MovieDto) -> Un
                 )
                 Text(
                     text = "${movie.releaseYear} • ${movie.director ?: "режиссёр не указан"}",
-                    color = Color(0xFF6B7280),
+                    color = colors.onSurface.copy(alpha = 0.66f),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = normalizeCategory(movie.category),
-                    color = Color(0xFF6B7280),
+                    color = colors.onSurface.copy(alpha = 0.66f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(top = 2.dp)
@@ -341,7 +396,7 @@ private fun MovieCard(rank: Int, movie: MovieDto, onMovieClick: (MovieDto) -> Un
             }
             Text(
                 text = movie.rating?.let { "★ $it" } ?: "☆",
-                color = Color(0xFFF59E0B),
+                color = colors.tertiary,
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(start = 8.dp)
             )
@@ -351,19 +406,26 @@ private fun MovieCard(rank: Int, movie: MovieDto, onMovieClick: (MovieDto) -> Un
 
 @Composable
 private fun Cover(coverUrl: String?, width: Int, height: Int) {
-    if (coverUrl.isNullOrBlank()) {
+    val colors = MaterialTheme.colorScheme
+    val normalizedUrl = normalizeImageUrl(coverUrl)
+    if (normalizedUrl.isNullOrBlank()) {
         Box(
             modifier = Modifier
                 .size(width = width.dp, height = height.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Brush.linearGradient(listOf(Color(0xFF6D28D9), Color(0xFFDB2777)))),
+                .background(Brush.linearGradient(listOf(colors.surfaceVariant, colors.secondary))),
             contentAlignment = Alignment.Center
         ) {
             Text("🎬", style = MaterialTheme.typography.titleLarge)
         }
     } else {
+        val request = ImageRequest.Builder(LocalContext.current)
+            .data(normalizedUrl)
+            .crossfade(true)
+            .allowHardware(false)
+            .build()
         AsyncImage(
-            model = coverUrl,
+            model = request,
             contentDescription = "Обложка фильма",
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -375,13 +437,14 @@ private fun Cover(coverUrl: String?, width: Int, height: Int) {
 
 @Composable
 private fun Chip(text: String) {
+    val colors = MaterialTheme.colorScheme
     Surface(
-        color = Color(0xFFEDE9FE),
+        color = colors.surfaceVariant,
         shape = RoundedCornerShape(999.dp)
     ) {
         Text(
             text = text,
-            color = Color(0xFF5B21B6),
+            color = colors.primary,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp)
         )
     }

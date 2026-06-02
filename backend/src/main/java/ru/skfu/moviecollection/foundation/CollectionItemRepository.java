@@ -15,5 +15,8 @@ public interface CollectionItemRepository extends JpaRepository<CollectionItem, 
     Optional<CollectionItem> findByOwnerIdAndMovieId(UUID ownerId, UUID movieId);
 
     boolean existsByOwnerIdAndMovieId(UUID ownerId, UUID movieId);
-}
 
+    long countByOwnerId(UUID ownerId);
+
+    void deleteByOwnerId(UUID ownerId);
+}

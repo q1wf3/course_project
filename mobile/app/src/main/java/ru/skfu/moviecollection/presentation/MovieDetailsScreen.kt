@@ -30,9 +30,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import ru.skfu.moviecollection.model.MovieDto
 
 @Composable
@@ -42,24 +44,25 @@ fun MovieDetailsScreen(
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
+    val colors = MaterialTheme.colorScheme
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF8FAFC))
+            .background(colors.background)
             .verticalScroll(rememberScrollState())
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Brush.linearGradient(listOf(Color(0xFF111827), Color(0xFF6D28D9))))
+                .background(Brush.linearGradient(listOf(colors.background, colors.surface, colors.surfaceVariant)))
                 .statusBarsPadding()
                 .padding(start = 22.dp, end = 22.dp, top = 42.dp, bottom = 24.dp)
         ) {
             Button(
                 onClick = onBack,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0x33FFFFFF),
-                    contentColor = Color.White
+                    containerColor = colors.surfaceVariant,
+                    contentColor = colors.onSurface
                 ),
                 shape = RoundedCornerShape(16.dp)
             ) {
@@ -74,21 +77,21 @@ fun MovieDetailsScreen(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = movie.title,
-                        color = Color.White,
+                        color = colors.onSurface,
                         style = MaterialTheme.typography.headlineLarge,
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
                         text = "${movie.releaseYear} • ${movie.director ?: "режиссёр не указан"}",
-                        color = Color(0xFFEDE9FE),
+                        color = colors.onSurface.copy(alpha = 0.66f),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.padding(top = 4.dp)
                     )
                     Text(
                         text = movie.category?.trim()?.ifBlank { "Без категории" } ?: "Без категории",
-                        color = Color(0xFFFDE68A),
+                        color = colors.tertiary,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.padding(top = 8.dp)
@@ -99,7 +102,7 @@ fun MovieDetailsScreen(
 
         Card(
             shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = colors.surface),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(18.dp)
@@ -123,7 +126,7 @@ fun MovieDetailsScreen(
                 ) {
                     Button(
                         onClick = onEdit,
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6D28D9)),
+                        colors = ButtonDefaults.buttonColors(containerColor = colors.primary),
                         shape = RoundedCornerShape(16.dp)
                     ) {
                         Text("Редактировать")
@@ -143,19 +146,26 @@ fun MovieDetailsScreen(
 
 @Composable
 private fun Poster(coverUrl: String?, width: Int, height: Int) {
-    if (coverUrl.isNullOrBlank()) {
+    val colors = MaterialTheme.colorScheme
+    val normalizedUrl = normalizeImageUrl(coverUrl)
+    if (normalizedUrl.isNullOrBlank()) {
         Box(
             modifier = Modifier
                 .size(width = width.dp, height = height.dp)
                 .clip(RoundedCornerShape(22.dp))
-                .background(Brush.linearGradient(listOf(Color(0xFF6D28D9), Color(0xFFDB2777)))),
+                .background(Brush.linearGradient(listOf(colors.surfaceVariant, colors.secondary))),
             contentAlignment = Alignment.Center
         ) {
             Text("🎬", style = MaterialTheme.typography.headlineLarge)
         }
     } else {
+        val request = ImageRequest.Builder(LocalContext.current)
+            .data(normalizedUrl)
+            .crossfade(true)
+            .allowHardware(false)
+            .build()
         AsyncImage(
-            model = coverUrl,
+            model = request,
             contentDescription = "Обложка фильма",
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -167,10 +177,11 @@ private fun Poster(coverUrl: String?, width: Int, height: Int) {
 
 @Composable
 private fun InfoChip(label: String, value: String) {
-    Surface(color = Color(0xFFEDE9FE), shape = RoundedCornerShape(18.dp)) {
+    val colors = MaterialTheme.colorScheme
+    Surface(color = colors.surfaceVariant, shape = RoundedCornerShape(18.dp)) {
         Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
-            Text(label, color = Color(0xFF6B7280))
-            Text(value, color = Color(0xFF5B21B6), style = MaterialTheme.typography.titleLarge)
+            Text(label, color = colors.onSurface.copy(alpha = 0.66f))
+            Text(value, color = colors.primary, style = MaterialTheme.typography.titleLarge)
         }
     }
 }

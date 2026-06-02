@@ -16,29 +16,37 @@ PCMEF выбран как базовый архитектурный паттер
 
 ## Диаграмма пакетов
 
-```mermaid
-flowchart TB
-    subgraph Android["Mobile Client"]
-        P["presentation"]
-        VM["control: ViewModel"]
-        API["foundation: Retrofit"]
-        ROOM["foundation: Room DAO"]
-        P --> VM
-        VM --> API
-        VM --> ROOM
-    end
-    subgraph Server["Spring Boot Server"]
-        CTRL["control: Controllers"]
-        SVC["mediator: Services"]
-        ENT["entity: JPA Entities"]
-        REPO["foundation: Repositories"]
-        CTRL --> SVC
-        SVC --> ENT
-        SVC --> REPO
-        REPO --> DB[("PostgreSQL")]
-    end
-    API --> CTRL
+```plantuml
+@startuml
+package "Mobile Client" {
+    [presentation] as P
+    [control: ViewModel] as VM
+    [foundation: Retrofit] as API
+    [foundation: Room DAO] as ROOM
+    P --> VM
+    VM --> API
+    VM --> ROOM
+}
+
+package "Spring Boot Server" {
+    [control: Controllers] as CTRL
+    [mediator: Services] as SVC
+    [entity: JPA Entities] as ENT
+    [foundation: Repositories] as REPO
+    database "PostgreSQL" as DB
+    CTRL --> SVC
+    SVC --> ENT
+    SVC --> REPO
+    REPO --> DB
+}
+
+API --> CTRL
+@enduml
 ```
+
+![Диаграмма пакетов](images/package-diagram.png)
+
+Диаграмма пакетов показывает физическое распределение кода по клиентской и серверной частям. Android-приложение содержит UI, ViewModel, сетевой слой и Room, а backend разделен на контроллеры, сервисы, сущности и репозитории.
 
 ## Интерфейсы между слоями
 
@@ -46,11 +54,12 @@ flowchart TB
 
 ```java
 public interface MovieService {
-    MovieDto createMovie(CreateMovieCommand command, UUID userId);
-    MovieDto updateMovie(UUID movieId, UpdateMovieCommand command, UUID userId);
-    void deleteMovie(UUID movieId, UUID userId);
-    MovieDto getMovie(UUID movieId, UUID userId);
-    List<MovieDto> searchMovies(MovieSearchQuery query, UUID userId);
+    MovieDto createMovie(UUID userId, CreateMovieCommand command);
+    MovieDto updateMovie(UUID userId, UUID movieId, CreateMovieCommand command);
+    MovieDto getMovie(UUID userId, UUID movieId);
+    List<MovieDto> search(UUID userId, String query, WatchStatus status);
+    MovieDto changeStatus(UUID userId, UUID movieId, WatchStatus status);
+    void deleteFromCollection(UUID userId, UUID movieId);
 }
 ```
 
@@ -58,10 +67,17 @@ public interface MovieService {
 
 ```java
 public interface MovieRepository {
-    Optional<Movie> findByIdAndOwnerId(UUID movieId, UUID ownerId);
-    List<Movie> search(UUID ownerId, String query, WatchStatus status);
+    Optional<Movie> findById(UUID movieId);
     Movie save(Movie movie);
     void delete(Movie movie);
+}
+```
+
+```java
+public interface CollectionItemRepository {
+    List<CollectionItem> findByOwnerIdOrderByMovieTitle(UUID ownerId);
+    List<CollectionItem> findByOwnerIdAndStatusOrderByMovieTitle(UUID ownerId, WatchStatus status);
+    Optional<CollectionItem> findByOwnerIdAndMovieId(UUID ownerId, UUID movieId);
 }
 ```
 
@@ -90,4 +106,3 @@ Presentation → Control → Mediator → Entity/Foundation
 ```
 
 Foundation не зависит от Presentation, а Entity не зависит от UI и инфраструктурных классов.
-

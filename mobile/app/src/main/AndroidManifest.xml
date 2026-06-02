@@ -7,6 +7,7 @@
         android:icon="@drawable/ic_launcher"
         android:roundIcon="@drawable/ic_launcher_round"
         android:label="Movie Collection"
+        android:localeConfig="@xml/locales_config"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
         android:theme="@style/Theme.MovieCollection">

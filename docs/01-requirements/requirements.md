@@ -6,7 +6,7 @@
 |---|---|
 | Гость | Может зарегистрироваться или войти |
 | Пользователь | Ведет личную коллекцию фильмов |
-| Администратор | Управляет жанрами и справочниками |
+| Администратор | Управляет учетными записями, ролями и просматривает коллекции пользователей |
 
 ## Функциональные требования
 
@@ -22,7 +22,7 @@
 | FR-08 | Система должна сохранять статус просмотра | Must |
 | FR-09 | Система должна сохранять оценку и заметку | Should |
 | FR-10 | Система должна кэшировать данные для оффлайн-режима | Must |
-| FR-11 | Администратор должен управлять жанрами | Should |
+| FR-11 | Администратор должен управлять пользователями и ролями | Should |
 | FR-12 | Система должна документировать REST API через OpenAPI | Must |
 
 ## Нефункциональные требования
@@ -38,18 +38,37 @@
 
 ## Use Case диаграмма
 
-```mermaid
-flowchart LR
-    Guest["Гость"] --> Register["Регистрация"]
-    Guest --> Login["Вход"]
-    User["Пользователь"] --> List["Просмотр коллекции"]
-    User --> Create["Добавление фильма"]
-    User --> Update["Редактирование фильма"]
-    User --> Delete["Удаление фильма"]
-    User --> Search["Поиск и фильтрация"]
-    User --> Status["Изменение статуса просмотра"]
-    Admin["Администратор"] --> Genres["Управление жанрами"]
+```plantuml
+@startuml
+left to right direction
+actor "Гость" as Guest
+actor "Пользователь" as User
+actor "Администратор" as Admin
+usecase "Регистрация" as Register
+usecase "Вход" as Login
+usecase "Просмотр коллекции" as List
+usecase "Добавление фильма" as Create
+usecase "Редактирование фильма" as Update
+usecase "Удаление фильма" as Delete
+usecase "Поиск и фильтрация" as Search
+usecase "Изменение статуса просмотра" as Status
+usecase "Управление пользователями" as Users
+
+Guest --> Register
+Guest --> Login
+User --> List
+User --> Create
+User --> Update
+User --> Delete
+User --> Search
+User --> Status
+Admin --> Users
+@enduml
 ```
+
+![Диаграмма вариантов использования](images/usecase.png)
+
+Диаграмма показывает, какие функции доступны каждому типу пользователя. Гость может только войти или зарегистрироваться, обычный пользователь управляет личной коллекцией, а администратор получает отдельный сценарий управления учетными записями.
 
 ## Спецификация Use Case: добавление фильма
 
@@ -59,7 +78,7 @@ flowchart LR
 | Название | Добавление фильма в коллекцию |
 | Актор | Пользователь |
 | Предусловие | Пользователь авторизован |
-| Основной сценарий | Пользователь открывает форму, вводит название, год, жанры, статус, оценку и сохраняет карточку |
+| Основной сценарий | Пользователь открывает форму, вводит название, год, категорию, статус, оценку и сохраняет карточку |
 | Альтернативный сценарий | При ошибках валидации система показывает подсказки |
 | Постусловие | Фильм сохранен на сервере и в локальном кэше |
 
@@ -77,42 +96,59 @@ flowchart LR
 
 ## Domain Model
 
-```mermaid
-classDiagram
-    class User {
-        UUID id
-        String email
-        String passwordHash
-        Role role
-    }
-    class Movie {
-        UUID id
-        String title
-        int releaseYear
-        String director
-        int durationMinutes
-    }
-    class CollectionItem {
-        UUID id
-        WatchStatus status
-        int rating
-        String note
-        boolean favorite
-    }
-    class Genre {
-        UUID id
-        String name
-    }
-    class Review {
-        UUID id
-        String text
-        LocalDate reviewDate
-    }
-    User "1" --> "*" CollectionItem
-    Movie "1" --> "*" CollectionItem
-    Movie "*" --> "*" Genre
-    CollectionItem "1" --> "0..1" Review
+```plantuml
+@startuml
+class User {
+    +id : UUID
+    +email : String
+    +passwordHash : String
+    +role : Role
+}
+
+class Movie {
+    +id : UUID
+    +title : String
+    +releaseYear : int
+    +director : String
+    +durationMinutes : int
+}
+
+class CollectionItem {
+    +id : UUID
+    +status : WatchStatus
+    +rating : int
+    +note : String
+    +favorite : boolean
+}
+
+class Genre {
+    +id : UUID
+    +name : String
+}
+
+enum Role {
+    USER
+    ADMIN
+}
+
+enum WatchStatus {
+    PLANNED
+    WATCHING
+    WATCHED
+    DROPPED
+}
+
+User "1" --> "0..*" CollectionItem : owns
+Movie "1" --> "0..*" CollectionItem : included in
+Movie "0..*" --> "0..*" Genre : has
+User --> Role
+CollectionItem --> WatchStatus
+@enduml
 ```
+
+![Модель требований и предметной области](images/requirements.png)
+
+Модель связывает требования с основными сущностями проекта. Она показывает, что большая часть функциональности строится вокруг пользователя, фильма и записи коллекции, а роль определяет доступ к обычному или административному сценарию.
 
 ## Таблица трассировки
 
@@ -122,4 +158,3 @@ classDiagram
 | Быстро находить фильм | FR-07 | UC-02 |
 | Работать без сети | FR-10 | UC-02 |
 | Защитить личные данные | FR-01, FR-02, NFR-02, NFR-03 | Вход и регистрация |
-
