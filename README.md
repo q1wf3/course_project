@@ -98,6 +98,7 @@ test@yandex.ru / 123456
 ## Локальный запуск backend
 
 Перед локальным запуском должен быть доступен PostgreSQL с базой `movie_collection` и пользователем `movie_user`.
+При запуске PostgreSQL через Docker Compose база доступна на `127.0.0.1:5433`, чтобы не конфликтовать с локальным PostgreSQL на `5432`.
 
 ```bash
 cd backend

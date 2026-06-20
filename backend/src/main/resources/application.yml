@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/movie_collection
+    url: jdbc:postgresql://127.0.0.1:5433/movie_collection
     username: movie_user
     password: movie_password
     driver-class-name: org.postgresql.Driver

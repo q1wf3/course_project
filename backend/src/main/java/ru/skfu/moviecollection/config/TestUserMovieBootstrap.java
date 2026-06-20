@@ -48,8 +48,18 @@ public class TestUserMovieBootstrap implements CommandLineRunner {
     }
 
     private void attachMovie(User user, DemoMovie demoMovie) {
-        var movie = movieRepository
-                .findByTitleIgnoreCaseAndReleaseYear(demoMovie.title(), demoMovie.releaseYear())
+        var movies = movieRepository.findAllByTitleIgnoreCaseAndReleaseYear(
+                demoMovie.title(),
+                demoMovie.releaseYear()
+        );
+        var alreadyAttached = movies.stream()
+                .anyMatch(movie -> collectionItemRepository.existsByOwnerIdAndMovieId(user.getId(), movie.getId()));
+        if (alreadyAttached) {
+            return;
+        }
+
+        var movie = movies.stream()
+                .findFirst()
                 .orElseGet(() -> movieRepository.save(new Movie(
                         demoMovie.title(),
                         demoMovie.releaseYear(),
@@ -59,10 +69,6 @@ public class TestUserMovieBootstrap implements CommandLineRunner {
                         demoMovie.coverUrl(),
                         demoMovie.category()
                 )));
-
-        if (collectionItemRepository.existsByOwnerIdAndMovieId(user.getId(), movie.getId())) {
-            return;
-        }
 
         var item = new CollectionItem(user, movie, demoMovie.status());
         if (demoMovie.rating() != null) {

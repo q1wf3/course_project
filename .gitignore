@@ -1,0 +1,14 @@
+.gradle/
+.kotlin/
+.DS_Store
+build/
+target/
+out/
+backend/data/
+.idea/
+*.iml
+*.log
+.env
+local.properties
+node_modules/
+docs/images/*.tmp
