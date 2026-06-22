@@ -18,9 +18,9 @@
 
 | Изображение | Где используется | Назначение |
 |---|---|---|
-| [pcmef-diagram.png](images/pcmef-diagram.png) | [PCMEF-диаграмма](pcmef-diagram.md) | Показывает архитектурные слои проекта |
-| [dependency-diagram.png](images/dependency-diagram.png) | [Диаграмма зависимостей](dependency-diagram.md) | Отражает связи между клиентом, backend и БД |
-| [package-diagram.png](images/package-diagram.png) | [Общее описание архитектуры](architecture.md) | Показывает структуру backend-пакетов |
+| [pcmef-diagram.png](../images/pcmef-diagram.png) | [PCMEF-диаграмма](pcmef-diagram.md) | Показывает архитектурные слои проекта |
+| [dependency-diagram.png](../images/dependency-diagram.png) | [Диаграмма зависимостей](dependency-diagram.md) | Отражает связи между клиентом, backend и БД |
+| [package-diagram.png](../images/package-diagram.png) | [Общее описание архитектуры](architecture.md) | Показывает структуру backend-пакетов |
 
 ## Контроль соответствия методическим указаниям
 

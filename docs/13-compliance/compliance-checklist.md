@@ -19,7 +19,7 @@
 | BCrypt-хеширование паролей | Выполнено | `SecurityConfig.java`, `AuthServiceImpl.java` |
 | Роли USER/ADMIN | Выполнено | `Role.java`, JWT содержит `role`, `AdminController.java`, Android-экран `AdminScreen.kt` |
 | Docker + docker-compose | Выполнено | `backend/Dockerfile`, `docker-compose.yml` |
-| Модульное тестирование backend >40% | Выполнено | `mvn test jacoco:report`: 10 тестов, 0 ошибок; покрытие строк 44.07%, instructions 42.53% |
+| Модульное тестирование backend >40% | Выполнено | `mvn test jacoco:report`: 26 тестов, 0 ошибок; покрытие строк 60.05%, instructions 53.22%, branches 50.00% |
 
 ## Документация по этапам
 
@@ -44,13 +44,13 @@
 1. Скриншот Swagger UI: `docs/images/swagger-ui.png`.
 2. Скриншоты Android-экранов: `docs/images/mobile-*.png`.
 3. Скриншот JaCoCo-покрытия: `docs/images/test-coverage.png`.
-4. Скриншоты GitHub Insights:
+4. Графики Git-статистики уже подготовлены:
    - `docs/images/git-commit-activity.png`;
    - `docs/images/git-punch-card.png`.
-5. Проверить, что в GitHub-репозитории есть история коммитов, а не только один финальный commit.
+5. Проверить, что перед финальной сдачей последние изменения запушены в GitHub-репозиторий.
 
 ## Основные остаточные риски
 
-1. В локальной папке отсутствует `.git`, поэтому Git-статистика должна проверяться в GitHub-репозитории.
-2. Админка реализована через protected endpoints `/api/admin/**`; перед сдачей стоит сделать скрин Swagger с этими endpoints.
-3. Отчет JaCoCo формируется локально в каталоге сборки `backend/target`; перед сдачей нужно приложить скриншот HTML-отчета в `docs/images/test-coverage.png`.
+1. Админка реализована через protected endpoints `/api/admin/**`; перед сдачей стоит сделать скрин Swagger с этими endpoints.
+2. Отчет JaCoCo формируется локально в каталоге сборки `backend/target`; перед сдачей нужно приложить скриншот HTML-отчета в `docs/images/test-coverage.png`.
+3. Если после правок появятся новые коммиты, графики Git-статистики в `docs/images` стоит обновить перед финальной отправкой.

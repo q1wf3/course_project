@@ -9,7 +9,7 @@ Spring Boot REST API для мобильного приложения колле
 Перед запуском нужен PostgreSQL:
 
 ```text
-jdbc:postgresql://localhost:5432/movie_collection
+jdbc:postgresql://127.0.0.1:5433/movie_collection
 movie_user / movie_password
 ```
 

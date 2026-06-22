@@ -1,41 +1,48 @@
-# Общие изображения для пояснительной записки
+# Общие изображения документации
 
 ## Назначение папки
 
-В этой папке лежат общие PNG-диаграммы, подготовленные для вставки в пояснительную записку. Они не привязаны к одному этапу документации и могут использоваться в тексте отчета как иллюстрации требований, архитектуры, базы данных и сценариев работы приложения.
+В этой папке собраны все PNG/JPG-изображения, которые используются в Markdown-документации и пояснительной записке. Централизация нужна, чтобы диаграммы было проще проверять, вставлять в Word-отчет и переносить между разделами без дублирования файлов.
 
 ## Состав изображений
 
-| Файл | Содержание | Где лучше использовать |
+| Файл | Содержание | Раздел |
 |---|---|---|
-| [report-use-case-diagram.png](report-use-case-diagram.png) | Диаграмма вариантов использования Movie Collection | Раздел требований |
-| [report-er-diagram.png](report-er-diagram.png) | ER-диаграмма PostgreSQL | Раздел проектирования базы данных |
-| [report-pcmef-architecture.png](report-pcmef-architecture.png) | Архитектура PCMEF для Android и backend | Раздел архитектуры |
-| [report-create-movie-sequence.png](report-create-movie-sequence.png) | Диаграмма последовательности создания фильма | Раздел детального проектирования |
-| [report-offline-cache-sequence.png](report-offline-cache-sequence.png) | Диаграмма последовательности оффлайн-режима | Раздел детального проектирования или интерфейса |
+| [authorization.png](authorization.png) | Сценарий авторизации | Детальное проектирование |
+| [buc-diagram.png](buc-diagram.png) | Бизнес Use Case диаграмма | Инициация проекта |
+| [business-class-model.png](business-class-model.png) | Бизнес-модель классов | Инициация проекта |
+| [business-process.png](business-process.png) | Бизнес-процесс | Инициация проекта |
+| [check-admin.png](check-admin.png) | Проверка роли администратора | Детальное проектирование |
+| [context-diagram.png](context-diagram.png) | Контекстная диаграмма | Инициация проекта |
+| [create-film.png](create-film.png) | Создание фильма | Детальное проектирование |
+| [dependency-diagram.png](dependency-diagram.png) | Диаграмма зависимостей | Архитектура |
+| [design-classes-diagram.png](design-classes-diagram.png) | Диаграмма проектных классов | Детальное проектирование |
+| [diagram-gantt.png](diagram-gantt.png) | Диаграмма Ганта | Управление проектом |
+| [domain-model.png](domain-model.png) | Модель предметной области | Требования |
+| [er-diagram.png](er-diagram.png) | ER-диаграмма | База данных |
+| [git-commit-activity.png](git-commit-activity.png) | Активность коммитов | Статистика разработки |
+| [git-punch-card.png](git-punch-card.png) | Распределение коммитов по времени | Статистика разработки |
+| [navigation.png](navigation.png) | Навигация Android-приложения | Интерфейс |
+| [package-diagram.png](package-diagram.png) | Диаграмма пакетов | Архитектура |
+| [pcmef-diagram.png](pcmef-diagram.png) | PCMEF-диаграмма | Архитектура |
+| [report-create-movie-sequence.png](report-create-movie-sequence.png) | Последовательность создания фильма | Пояснительная записка |
+| [report-er-diagram.png](report-er-diagram.png) | ER-диаграмма для отчета | Пояснительная записка |
+| [report-offline-cache-sequence.png](report-offline-cache-sequence.png) | Последовательность оффлайн-режима | Пояснительная записка |
+| [report-pcmef-architecture.png](report-pcmef-architecture.png) | Архитектура PCMEF для отчета | Пояснительная записка |
+| [report-use-case-diagram.png](report-use-case-diagram.png) | Диаграмма вариантов использования для отчета | Пояснительная записка |
+| [requirements.png](requirements.png) | Модель требований | Требования |
+| [use-case-diagram.png](use-case-diagram.png) | Use Case диаграмма | Требования |
+| [usecase.png](usecase.png) | Use Case диаграмма для требований | Требования |
+| [wbs.png](wbs.png) | WBS | Управление проектом |
 
-## Предпросмотр
+## Использование
 
-![Диаграмма вариантов использования](report-use-case-diagram.png)
+Внутри разделов `docs` изображения подключаются относительными ссылками на `../images/...`. Для пояснительной записки Word лучше вставлять сами PNG-файлы из этой папки, чтобы они корректно отображались при печати и проверке.
 
-Диаграмма показывает роли гостя, пользователя и администратора. Она помогает обосновать разделение обычных пользовательских сценариев и административных функций.
+## Предпросмотр ключевых диаграмм
+
+![Use Case диаграмма](report-use-case-diagram.png)
 
 ![ER-диаграмма](report-er-diagram.png)
 
-ER-диаграмма описывает структуру PostgreSQL: пользователи, фильмы, жанры и записи коллекции. Центральная таблица `collection_items` хранит персональные параметры фильма в коллекции конкретного пользователя.
-
 ![Архитектура PCMEF](report-pcmef-architecture.png)
-
-Архитектурная схема показывает разделение Android-клиента и Spring Boot backend по слоям PCMEF. Она фиксирует направление зависимостей от интерфейса к контроллерам, сервисам, сущностям и репозиториям.
-
-![Создание фильма](report-create-movie-sequence.png)
-
-Диаграмма последовательности создания фильма показывает путь запроса от Android-экрана до сохранения данных в PostgreSQL через REST API и сервисный слой.
-
-![Оффлайн-режим](report-offline-cache-sequence.png)
-
-Диаграмма оффлайн-режима показывает два сценария загрузки коллекции: получение данных с backend при наличии сети и чтение последнего сохраненного состояния из Room-кэша при отсутствии соединения.
-
-## Примечание
-
-В Markdown-документации можно оставлять ссылки на эти изображения. В пояснительную записку Word лучше вставлять сами PNG-файлы, чтобы они корректно отображались при печати и проверке.

@@ -127,25 +127,62 @@ paths:
       responses:
         '200':
           description: Количество пользователей, фильмов и записей коллекций
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminStatsDto'
   /admin/users:
     get:
       summary: Список пользователей
       responses:
         '200':
           description: Пользователи
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AdminUserDto'
+  /admin/users/{userId}:
+    delete:
+      summary: Удалить пользователя
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '204':
+          description: Пользователь удален
+  /admin/users/{userId}/role:
+    put:
+      summary: Изменить роль пользователя
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+        - name: role
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [USER, ADMIN]
+      responses:
+        '200':
+          description: Роль изменена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserDto'
   /admin/users/{userId}/movies:
     get:
       summary: Коллекция выбранного пользователя
       parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
+        - $ref: '#/components/parameters/UserId'
       responses:
         '200':
           description: Фильмы пользователя
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MovieDto'
 components:
   securitySchemes:
     bearerAuth:
@@ -155,6 +192,13 @@ components:
   parameters:
     MovieId:
       name: movieId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    UserId:
+      name: userId
       in: path
       required: true
       schema:
@@ -228,6 +272,32 @@ components:
           type: integer
         favorite:
           type: boolean
+    AdminStatsDto:
+      type: object
+      properties:
+        usersCount:
+          type: integer
+          format: int64
+        moviesCount:
+          type: integer
+          format: int64
+        collectionItemsCount:
+          type: integer
+          format: int64
+    AdminUserDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        role:
+          type: string
+          enum: [USER, ADMIN]
+        moviesCount:
+          type: integer
+          format: int64
     WatchStatus:
       type: string
       enum: [PLANNED, WATCHING, WATCHED, DROPPED]

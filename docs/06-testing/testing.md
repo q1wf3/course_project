@@ -52,8 +52,8 @@ mvn test jacoco:report
 
 | Метрика | Покрытие |
 |---|---:|
-| Instructions | 53.56% |
+| Instructions | 53.22% |
 | Branches | 50.00% |
-| Lines | 60.78% |
+| Lines | 60.05% |
 
 Порог методических требований `>40%` выполнен. Перед сдачей нужно приложить скриншот итогового HTML-отчета в `docs/images/test-coverage.png`.

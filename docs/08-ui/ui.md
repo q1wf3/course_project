@@ -13,7 +13,7 @@
 
 ## Навигация
 
-![Навигация](images/navigation.png)
+![Навигация](../images/navigation.png)
 
 ## Разделение ролей
 

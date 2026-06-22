@@ -17,10 +17,10 @@
 
 | Изображение | Где используется | Назначение |
 |---|---|---|
-| [design-classes-diagram.png](images/design-classes-diagram.png) | [Диаграмма проектных классов](design-classes-diagram.md) | Показывает основные классы и зависимости |
-| [create-film.png](images/create-film.png) | [Диаграммы последовательностей](sequence-diagrams.md), [детальное проектирование](detailed-design.md) | Описывает сценарий создания карточки фильма |
-| [authorization.png](images/authorization.png) | [Диаграммы последовательностей](sequence-diagrams.md) | Описывает вход пользователя через REST API |
-| [check-admin.png](images/check-admin.png) | [Диаграммы последовательностей](sequence-diagrams.md) | Показывает проверку административных прав |
+| [design-classes-diagram.png](../images/design-classes-diagram.png) | [Диаграмма проектных классов](design-classes-diagram.md) | Показывает основные классы и зависимости |
+| [create-film.png](../images/create-film.png) | [Диаграммы последовательностей](sequence-diagrams.md), [детальное проектирование](detailed-design.md) | Описывает сценарий создания карточки фильма |
+| [authorization.png](../images/authorization.png) | [Диаграммы последовательностей](sequence-diagrams.md) | Описывает вход пользователя через REST API |
+| [check-admin.png](../images/check-admin.png) | [Диаграммы последовательностей](sequence-diagrams.md) | Показывает проверку административных прав |
 
 ## Контроль соответствия методическим указаниям
 

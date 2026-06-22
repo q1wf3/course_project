@@ -16,8 +16,8 @@ Tests run: 26, Failures: 0, Errors: 0, Skipped: 0
 Покрытие:
 
 ```text
-instructions: 53.56%
+instructions: 53.22%
 branches: 50.00%
-lines: 60.78%
+lines: 60.05%
 ```
 

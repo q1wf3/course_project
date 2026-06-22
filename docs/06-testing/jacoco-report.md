@@ -19,8 +19,8 @@ backend/target/site/jacoco/index.html
 
 | Метрика | Покрытие |
 | --- | --- |
-| Instructions | 53.56% |
+| Instructions | 53.22% |
 | Branches | 50.00% |
-| Lines | 60.78% |
+| Lines | 60.05% |
 
 Порог методических требований выше 40% выполнен.

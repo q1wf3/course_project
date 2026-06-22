@@ -12,7 +12,7 @@
 
 ## ER-диаграмма
 
-![ER-диаграмма](images/ER-диаграмма.png)
+![ER-диаграмма](../images/er-diagram.png)
 
 ## DDL-скрипт
 

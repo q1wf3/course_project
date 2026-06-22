@@ -45,7 +45,6 @@ course_project-main/
 ├── mobile/                  # Android-приложение
 ├── docs/                    # Документация по этапам курсового проекта
 ├── docker-compose.yml       # PostgreSQL, backend и pgAdmin
-├── movie-collection.code-workspace
 └── README.md
 ```
 
@@ -147,6 +146,21 @@ backend/target/site/jacoco/index.html
 cd mobile
 sh gradlew :app:compileDebugKotlin
 ```
+
+## Статистика разработки
+
+Раздел фиксирует базовые метрики Git, которые используются в отчете для подтверждения хода разработки и соответствия требованиям по управлению проектом.
+
+| Показатель | Значение |
+|---|---|
+| Количество коммитов | 9 |
+| Начало разработки | 2026-05-29 |
+| Последнее обновление | 2026-06-20 |
+| Основной репозиторий | <https://github.com/q1wf3/course_project> |
+
+![Активность коммитов](docs/images/git-commit-activity.png)
+
+![Распределение коммитов по времени](docs/images/git-punch-card.png)
 
 ## Документация
 

@@ -21,10 +21,10 @@
 
 | Изображение | Где используется | Назначение |
 |---|---|---|
-| [context-diagram.png](images/context-diagram.png) | [Контекстная диаграмма](context-diagram.md) | Показывает окружение системы и обмен данными |
-| [buc-diagram.png](images/buc-diagram.png) | [BUC-диаграмма](buc-diagram.md) | Фиксирует бизнес-прецеденты пользователя и администратора |
-| [business-class-model.png](images/business-class-model.png) | [Модель бизнес-классов](business-class-model.md) | Отражает ключевые бизнес-сущности проекта |
-| [business-process.png](images/business-process.png) | [Паспорт проекта](project-charter.md) | Используется как иллюстрация бизнес-прецедентов в общем описании этапа |
+| [context-diagram.png](../images/context-diagram.png) | [Контекстная диаграмма](context-diagram.md) | Показывает окружение системы и обмен данными |
+| [buc-diagram.png](../images/buc-diagram.png) | [BUC-диаграмма](buc-diagram.md) | Фиксирует бизнес-прецеденты пользователя и администратора |
+| [business-class-model.png](../images/business-class-model.png) | [Модель бизнес-классов](business-class-model.md) | Отражает ключевые бизнес-сущности проекта |
+| [business-process.png](../images/business-process.png) | [Паспорт проекта](project-charter.md) | Используется как иллюстрация бизнес-прецедентов в общем описании этапа |
 
 ## Контроль соответствия методическим указаниям
 

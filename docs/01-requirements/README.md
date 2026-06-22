@@ -19,10 +19,10 @@
 
 | Изображение | Где используется | Назначение |
 |---|---|---|
-| [use-case-diagram.png](images/use-case-diagram.png) | [Диаграмма вариантов использования](use-case-diagram.md) | Показывает роли и доступные сценарии |
-| [usecase.png](images/usecase.png) | [Общий список требований](requirements.md) | Иллюстрирует основные пользовательские функции |
-| [domain-model.png](images/domain-model.png) | [Модель предметной области](domain-model.md) | Показывает предметные сущности и связи |
-| [requirements.png](images/requirements.png) | [Общий список требований](requirements.md) | Используется как сводная схема требований |
+| [use-case-diagram.png](../images/use-case-diagram.png) | [Диаграмма вариантов использования](use-case-diagram.md) | Показывает роли и доступные сценарии |
+| [usecase.png](../images/usecase.png) | [Общий список требований](requirements.md) | Иллюстрирует основные пользовательские функции |
+| [domain-model.png](../images/domain-model.png) | [Модель предметной области](domain-model.md) | Показывает предметные сущности и связи |
+| [requirements.png](../images/requirements.png) | [Общий список требований](requirements.md) | Используется как сводная схема требований |
 
 ## Контроль соответствия методическим указаниям
 

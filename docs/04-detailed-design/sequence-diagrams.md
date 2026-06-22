@@ -2,12 +2,12 @@
 
 ## Создание фильма
 
-![Создание фильма](images/create-film.png)
+![Создание фильма](../images/create-film.png)
 
 ## Вход пользователя
 
-![Вход пользователя](images/authorization.png)
+![Вход пользователя](../images/authorization.png)
 
 ## Просмотр админки
 
-![Просмотр админки](images/check-admin.png)
+![Просмотр админки](../images/check-admin.png)
