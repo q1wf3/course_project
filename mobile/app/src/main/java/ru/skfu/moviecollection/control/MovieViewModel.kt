@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
+import ru.skfu.moviecollection.api_client.ComplaintRequest
 import ru.skfu.moviecollection.api_client.MovieApi
 import ru.skfu.moviecollection.api_client.MovieRequest
 import ru.skfu.moviecollection.local_cache.CachedMovie
@@ -162,6 +163,29 @@ class MovieViewModel(
         }
     }
 
+    fun submitComplaint(
+        movieId: String,
+        reason: String,
+        description: String,
+        onResult: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                movieApi.createComplaint(
+                    tokenProvider(),
+                    ComplaintRequest(
+                        movieId = movieId,
+                        reason = reason.trim(),
+                        description = description.trim()
+                    )
+                )
+                onResult("Жалоба отправлена администратору")
+            } catch (exception: Exception) {
+                onResult(exception.toComplaintMessage())
+            }
+        }
+    }
+
     fun seedDemoMovies() {
         viewModelScope.launch {
             val ownerId = ownerIdProvider()
@@ -269,6 +293,18 @@ class MovieViewModel(
                 else -> "Ошибка backend: HTTP ${code()}."
             }
             else -> message ?: "Не удалось сохранить фильм"
+        }
+    }
+
+    private fun Throwable.toComplaintMessage(): String {
+        return when (this) {
+            is HttpException -> when (code()) {
+                400 -> "Заполни причину и описание жалобы."
+                401, 403 -> "Сессия истекла. Выйди и зайди снова."
+                404 -> "Фильм для жалобы не найден."
+                else -> "Не удалось отправить жалобу: HTTP ${code()}."
+            }
+            else -> message ?: "Не удалось отправить жалобу"
         }
     }
 

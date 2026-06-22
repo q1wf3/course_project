@@ -40,6 +40,15 @@ interface MovieApi {
         @Header("Authorization") token: String,
         @Path("movieId") movieId: String
     )
+
+    @GET("complaints/my")
+    suspend fun myComplaints(@Header("Authorization") token: String): List<ComplaintResponse>
+
+    @POST("complaints")
+    suspend fun createComplaint(
+        @Header("Authorization") token: String,
+        @Body request: ComplaintRequest
+    )
 }
 
 data class MovieRequest(
@@ -55,3 +64,10 @@ data class MovieRequest(
     val note: String?
 )
 
+
+
+data class ComplaintRequest(
+    val movieId: String,
+    val reason: String,
+    val description: String
+)

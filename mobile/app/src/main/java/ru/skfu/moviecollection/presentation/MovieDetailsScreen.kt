@@ -16,14 +16,22 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,9 +50,62 @@ fun MovieDetailsScreen(
     movie: MovieDto,
     onBack: () -> Unit,
     onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onComplaintSubmit: (String, String, (String) -> Unit) -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
+    var complaintDialogVisible by remember { mutableStateOf(false) }
+    var complaintReason by remember { mutableStateOf("Ошибка в карточке фильма") }
+    var complaintDescription by remember { mutableStateOf("") }
+    var complaintMessage by remember { mutableStateOf<String?>(null) }
+    if (complaintDialogVisible) {
+        AlertDialog(
+            onDismissRequest = { complaintDialogVisible = false },
+            title = { Text("Жалоба на фильм") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(
+                        "Администратор увидит фильм, твою учетную запись и описание проблемы.",
+                        color = colors.onSurface.copy(alpha = 0.68f)
+                    )
+                    OutlinedTextField(
+                        value = complaintReason,
+                        onValueChange = { complaintReason = it },
+                        label = { Text("Причина") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = complaintDescription,
+                        onValueChange = { complaintDescription = it },
+                        label = { Text("Что не так") },
+                        minLines = 3,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onComplaintSubmit(complaintReason, complaintDescription) { result ->
+                            complaintMessage = result
+                            complaintDialogVisible = false
+                            complaintDescription = ""
+                        }
+                    },
+                    enabled = complaintReason.isNotBlank() && complaintDescription.isNotBlank()
+                ) {
+                    Text("Отправить")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { complaintDialogVisible = false }) {
+                    Text("Отмена")
+                }
+            }
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -127,17 +188,35 @@ fun MovieDetailsScreen(
                     Button(
                         onClick = onEdit,
                         colors = ButtonDefaults.buttonColors(containerColor = colors.primary),
-                        shape = RoundedCornerShape(16.dp)
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier.weight(1f)
                     ) {
                         Text("Редактировать")
                     }
                     Button(
                         onClick = onDelete,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444)),
-                        shape = RoundedCornerShape(16.dp)
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier.weight(1f)
                     ) {
                         Text("Удалить")
                     }
+                }
+                OutlinedButton(
+                    onClick = { complaintDialogVisible = true },
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp)
+                ) {
+                    Text("Пожаловаться")
+                }
+                complaintMessage?.let { message ->
+                    Text(
+                        text = message,
+                        color = colors.primary,
+                        modifier = Modifier.padding(top = 10.dp)
+                    )
                 }
             }
         }

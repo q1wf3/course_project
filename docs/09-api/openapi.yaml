@@ -121,6 +121,34 @@ paths:
       responses:
         '200':
           description: Статус изменен
+  /complaints/my:
+    get:
+      summary: Получить свои жалобы и ответы администратора
+      responses:
+        '200':
+          description: Жалобы текущего пользователя
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ComplaintDto'
+  /complaints:
+    post:
+      summary: Отправить жалобу на фильм
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateComplaintCommand'
+      responses:
+        '201':
+          description: Жалоба создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintDto'
   /admin/stats:
     get:
       summary: Статистика администратора
@@ -183,6 +211,46 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MovieDto'
+  /admin/complaints:
+    get:
+      summary: Список жалоб пользователей
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/ComplaintStatus'
+      responses:
+        '200':
+          description: Жалобы пользователей
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ComplaintDto'
+  /admin/complaints/{complaintId}/status:
+    put:
+      summary: Изменить статус жалобы
+      parameters:
+        - name: complaintId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateComplaintStatusCommand'
+      responses:
+        '200':
+          description: Статус жалобы изменен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintDto'
 components:
   securitySchemes:
     bearerAuth:
@@ -284,6 +352,9 @@ components:
         collectionItemsCount:
           type: integer
           format: int64
+        openComplaintsCount:
+          type: integer
+          format: int64
     AdminUserDto:
       type: object
       properties:
@@ -298,6 +369,58 @@ components:
         moviesCount:
           type: integer
           format: int64
+    CreateComplaintCommand:
+      type: object
+      required: [movieId, reason, description]
+      properties:
+        movieId:
+          type: string
+          format: uuid
+        reason:
+          type: string
+        description:
+          type: string
+    UpdateComplaintStatusCommand:
+      type: object
+      required: [status]
+      properties:
+        status:
+          $ref: '#/components/schemas/ComplaintStatus'
+        adminComment:
+          type: string
+    ComplaintDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        reporterId:
+          type: string
+          format: uuid
+        reporterEmail:
+          type: string
+        movieId:
+          type: string
+          format: uuid
+        movieTitle:
+          type: string
+        reason:
+          type: string
+        description:
+          type: string
+        status:
+          $ref: '#/components/schemas/ComplaintStatus'
+        adminComment:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        resolvedAt:
+          type: string
+          format: date-time
+    ComplaintStatus:
+      type: string
+      enum: [NEW, IN_PROGRESS, RESOLVED, REJECTED]
     WatchStatus:
       type: string
       enum: [PLANNED, WATCHING, WATCHED, DROPPED]

@@ -17,6 +17,5 @@ data class CachedMovie(
     val status: String,
     val rating: Int?,
     val favorite: Boolean,
-    @ColumnInfo(defaultValue = "NULL")
     val pendingAction: String?
 )

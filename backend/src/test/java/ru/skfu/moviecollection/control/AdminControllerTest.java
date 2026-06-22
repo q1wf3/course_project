@@ -11,27 +11,36 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import ru.skfu.moviecollection.config.JwtService;
+import ru.skfu.moviecollection.control.dto.ComplaintDto;
+import ru.skfu.moviecollection.control.dto.UpdateComplaintStatusCommand;
 import ru.skfu.moviecollection.entity.CollectionItem;
 import ru.skfu.moviecollection.entity.Movie;
+import ru.skfu.moviecollection.entity.ComplaintStatus;
 import ru.skfu.moviecollection.entity.Role;
 import ru.skfu.moviecollection.entity.User;
 import ru.skfu.moviecollection.entity.WatchStatus;
 import ru.skfu.moviecollection.foundation.CollectionItemRepository;
+import ru.skfu.moviecollection.foundation.ComplaintRepository;
 import ru.skfu.moviecollection.foundation.MovieMapper;
 import ru.skfu.moviecollection.foundation.MovieRepository;
 import ru.skfu.moviecollection.foundation.UserRepository;
+import ru.skfu.moviecollection.mediator.ComplaintService;
 
 class AdminControllerTest {
     private final JwtService jwtService = mock(JwtService.class);
     private final UserRepository userRepository = mock(UserRepository.class);
     private final MovieRepository movieRepository = mock(MovieRepository.class);
     private final CollectionItemRepository collectionItemRepository = mock(CollectionItemRepository.class);
+    private final ComplaintRepository complaintRepository = mock(ComplaintRepository.class);
+    private final ComplaintService complaintService = mock(ComplaintService.class);
     private final MovieMapper movieMapper = new MovieMapper();
     private final AdminController controller = new AdminController(
             jwtService,
             userRepository,
             movieRepository,
             collectionItemRepository,
+            complaintRepository,
+            complaintService,
             movieMapper
     );
 
@@ -41,12 +50,14 @@ class AdminControllerTest {
         when(userRepository.count()).thenReturn(2L);
         when(movieRepository.count()).thenReturn(5L);
         when(collectionItemRepository.count()).thenReturn(7L);
+        when(complaintRepository.countByStatusIn(List.of(ComplaintStatus.NEW, ComplaintStatus.IN_PROGRESS))).thenReturn(3L);
 
         var result = controller.stats(authorization);
 
         assertEquals(2L, result.usersCount());
         assertEquals(5L, result.moviesCount());
         assertEquals(7L, result.collectionItemsCount());
+        assertEquals(3L, result.openComplaintsCount());
         verify(jwtService).requireAdmin(authorization);
     }
 
@@ -125,6 +136,58 @@ class AdminControllerTest {
         controller.deleteUser("Bearer admin", user.getId());
 
         verify(collectionItemRepository).deleteByOwnerId(user.getId());
+        verify(complaintRepository).deleteByReporterId(user.getId());
         verify(userRepository).delete(user);
+    }
+
+    @Test
+    void complaintsRequireAdminAndDelegateToService() {
+        var complaint = new ComplaintDto(
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                "test@yandex.ru",
+                UUID.randomUUID(),
+                "Брат",
+                "Ошибка в карточке",
+                "Неверный год",
+                ComplaintStatus.NEW,
+                null,
+                null,
+                null
+        );
+        when(complaintService.getComplaints(ComplaintStatus.NEW)).thenReturn(List.of(complaint));
+
+        var result = controller.complaints("Bearer admin", ComplaintStatus.NEW);
+
+        assertEquals(1, result.size());
+        assertEquals("Брат", result.get(0).movieTitle());
+        verify(jwtService).requireAdmin("Bearer admin");
+        verify(complaintService).getComplaints(ComplaintStatus.NEW);
+    }
+
+    @Test
+    void updateComplaintStatusRequiresAdminAndDelegatesToService() {
+        var complaintId = UUID.randomUUID();
+        var command = new UpdateComplaintStatusCommand(ComplaintStatus.RESOLVED, "Проверено");
+        var complaint = new ComplaintDto(
+                complaintId,
+                UUID.randomUUID(),
+                "test@yandex.ru",
+                UUID.randomUUID(),
+                "Брат",
+                "Ошибка",
+                "Описание",
+                ComplaintStatus.RESOLVED,
+                "Проверено",
+                null,
+                null
+        );
+        when(complaintService.updateComplaintStatus(complaintId, command)).thenReturn(complaint);
+
+        var result = controller.updateComplaintStatus("Bearer admin", complaintId, command);
+
+        assertEquals(ComplaintStatus.RESOLVED, result.status());
+        verify(jwtService).requireAdmin("Bearer admin");
+        verify(complaintService).updateComplaintStatus(complaintId, command);
     }
 }

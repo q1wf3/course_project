@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -25,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +43,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import ru.skfu.moviecollection.api_client.ComplaintResponse
 import ru.skfu.moviecollection.model.MovieDto
 
 @Composable
@@ -52,6 +55,13 @@ fun ProfileScreen(
     avatarUrl: String,
     bio: String,
     favoriteGenre: String,
+    notifications: List<ComplaintResponse>,
+    readNotificationIds: Set<String>,
+    deletedNotificationIds: Set<String>,
+    onRefreshNotifications: () -> Unit,
+    onNotificationsViewed: (Set<String>) -> Unit,
+    onDeleteNotification: (String) -> Unit,
+    onDeleteAllNotifications: (Set<String>) -> Unit,
     onProfileChange: (String, String, String, String) -> Unit,
     onOpenSettings: () -> Unit,
     onOpenAdmin: () -> Unit,
@@ -62,6 +72,24 @@ fun ProfileScreen(
     val plannedCount = movies.count { it.status.name == "PLANNED" }
     val averageRating = movies.mapNotNull { it.rating }.average().takeIf { !it.isNaN() }
     var isEditing by remember { mutableStateOf(false) }
+    var notificationsVisible by remember { mutableStateOf(false) }
+    val visibleNotifications = notifications.filterNot { it.id in deletedNotificationIds }
+    val answeredNotificationIds = visibleNotifications
+        .filter { it.hasUserVisibleAnswer }
+        .map { it.id }
+        .toSet()
+    val unreadNotifications = answeredNotificationIds.count { it !in readNotificationIds }
+
+    if (notificationsVisible) {
+        NotificationsDialog(
+            notifications = visibleNotifications,
+            onDeleteNotification = onDeleteNotification,
+            onDeleteAllNotifications = {
+                onDeleteAllNotifications(visibleNotifications.map { it.id }.toSet())
+            },
+            onDismiss = { notificationsVisible = false }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -131,6 +159,23 @@ fun ProfileScreen(
                     modifier = Modifier.padding(top = 8.dp)
                 )
             }
+        }
+
+
+        OutlinedButton(
+            onClick = {
+                onRefreshNotifications()
+                if (answeredNotificationIds.isNotEmpty()) {
+                    onNotificationsViewed(answeredNotificationIds)
+                }
+                notificationsVisible = true
+            },
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 12.dp)
+        ) {
+            Text("🔔 Уведомления" + if (unreadNotifications > 0) " ($unreadNotifications)" else "")
         }
 
         OutlinedButton(
@@ -312,3 +357,104 @@ private fun ProfileEditor(
         }
     }
 }
+
+@Composable
+private fun NotificationsDialog(
+    notifications: List<ComplaintResponse>,
+    onDeleteNotification: (String) -> Unit,
+    onDeleteAllNotifications: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val colors = MaterialTheme.colorScheme
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Уведомления") },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier
+                    .height(360.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                if (notifications.isEmpty()) {
+                    Text(
+                        "Пока нет уведомлений. Когда администратор ответит на жалобу, ответ появится здесь.",
+                        color = colors.onSurface.copy(alpha = 0.72f)
+                    )
+                } else {
+                    OutlinedButton(
+                        onClick = onDeleteAllNotifications,
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Удалить все уведомления")
+                    }
+                    notifications.forEach { notification ->
+                        NotificationCard(
+                            notification = notification,
+                            onDelete = { onDeleteNotification(notification.id) }
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Закрыть")
+            }
+        }
+    )
+}
+
+@Composable
+private fun NotificationCard(
+    notification: ComplaintResponse,
+    onDelete: () -> Unit
+) {
+    val colors = MaterialTheme.colorScheme
+    Card(
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = colors.surfaceVariant),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(14.dp)) {
+            Text(notification.movieTitle, style = MaterialTheme.typography.titleMedium)
+            Text(
+                "Жалоба: ${notification.reason}",
+                color = colors.onSurface.copy(alpha = 0.72f),
+                modifier = Modifier.padding(top = 4.dp)
+            )
+            Text(
+                "Статус: ${notification.status.notificationLabel}",
+                color = colors.primary,
+                modifier = Modifier.padding(top = 6.dp)
+            )
+            val adminMessage = notification.adminComment?.takeIf { it.isNotBlank() }
+            Text(
+                adminMessage ?: "Администратор пока не написал ответ.",
+                color = colors.onSurface.copy(alpha = if (adminMessage == null) 0.58f else 0.86f),
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            TextButton(
+                onClick = onDelete,
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(top = 6.dp)
+            ) {
+                Text("Удалить")
+            }
+        }
+    }
+}
+
+private val ComplaintResponse.hasUserVisibleAnswer: Boolean
+    get() = adminComment?.isNotBlank() == true || status != "NEW"
+
+private val String.notificationLabel: String
+    get() = when (this) {
+        "NEW" -> "ожидает рассмотрения"
+        "IN_PROGRESS" -> "администратор проверяет"
+        "RESOLVED" -> "закрыта"
+        "REJECTED" -> "отклонена"
+        else -> this
+    }

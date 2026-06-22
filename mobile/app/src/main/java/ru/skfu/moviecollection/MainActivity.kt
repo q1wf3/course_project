@@ -21,6 +21,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -31,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.skfu.moviecollection.api_client.ApiClient
+import ru.skfu.moviecollection.api_client.ComplaintResponse
 import ru.skfu.moviecollection.control.MovieViewModel
 import ru.skfu.moviecollection.control.MovieUiState
 import ru.skfu.moviecollection.local_cache.AppDatabase
@@ -45,6 +47,7 @@ import ru.skfu.moviecollection.presentation.ProfileScreen
 import ru.skfu.moviecollection.presentation.SettingsScreen
 import ru.skfu.moviecollection.ui.theme.MovieCollectionTheme
 import java.util.Locale
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +67,13 @@ class MainActivity : ComponentActivity() {
             var avatarUrl by remember { mutableStateOf(preferences.getString("avatar_url", "").orEmpty()) }
             var bio by remember { mutableStateOf(preferences.getString("profile_bio", "").orEmpty()) }
             var favoriteGenre by remember { mutableStateOf(preferences.getString("favorite_genre", "").orEmpty()) }
+            var notifications by remember { mutableStateOf<List<ComplaintResponse>>(emptyList()) }
+            var readNotificationIds by remember {
+                mutableStateOf(preferences.getStringSet("read_notification_ids", emptySet()).orEmpty())
+            }
+            var deletedNotificationIds by remember {
+                mutableStateOf(preferences.getStringSet("deleted_notification_ids", emptySet()).orEmpty())
+            }
             var currentScreen by remember {
                 mutableStateOf<Screen>(
                     when {
@@ -76,6 +86,7 @@ class MainActivity : ComponentActivity() {
 
             MovieCollectionTheme(darkTheme = darkTheme) {
                 val database = remember { AppDatabase.getInstance(this) }
+                val scope = rememberCoroutineScope()
                 val viewModel = remember {
                     MovieViewModel(
                         movieApi = ApiClient.movieApi,
@@ -88,9 +99,35 @@ class MainActivity : ComponentActivity() {
                 val movieState by viewModel.state.collectAsState()
                 val movies = (movieState as? MovieUiState.Success)?.movies.orEmpty()
 
+                fun refreshNotifications() {
+                    if (token.isBlank()) return
+                    scope.launch {
+                        notifications = runCatching {
+                            ApiClient.movieApi.myComplaints("Bearer $token")
+                        }.getOrDefault(emptyList())
+                    }
+                }
+
+                fun saveReadNotificationIds(nextIds: Set<String>) {
+                    val stableIds = nextIds.toSet()
+                    readNotificationIds = stableIds
+                    preferences.edit().putStringSet("read_notification_ids", stableIds).apply()
+                }
+
+                fun saveDeletedNotificationIds(nextIds: Set<String>) {
+                    val stableIds = nextIds.toSet()
+                    deletedNotificationIds = stableIds
+                    preferences.edit().putStringSet("deleted_notification_ids", stableIds).apply()
+                }
+
                 LaunchedEffect(currentScreen) {
                     if (currentScreen == Screen.List || currentScreen == Screen.Search || currentScreen == Screen.Profile) {
                         viewModel.loadMovies()
+                    }
+                    if (currentScreen == Screen.Profile && token.isNotBlank()) {
+                        notifications = runCatching {
+                            ApiClient.movieApi.myComplaints("Bearer $token")
+                        }.getOrDefault(emptyList())
                     } else if (currentScreen is Screen.Edit) {
                         viewModel.resetSaveState()
                     }
@@ -130,6 +167,19 @@ class MainActivity : ComponentActivity() {
                             avatarUrl = avatarUrl,
                             bio = bio,
                             favoriteGenre = favoriteGenre,
+                            notifications = notifications,
+                            readNotificationIds = readNotificationIds,
+                            deletedNotificationIds = deletedNotificationIds,
+                            onRefreshNotifications = { refreshNotifications() },
+                            onNotificationsViewed = { viewedIds ->
+                                saveReadNotificationIds(readNotificationIds + viewedIds)
+                            },
+                            onDeleteNotification = { notificationId ->
+                                saveDeletedNotificationIds(deletedNotificationIds + notificationId)
+                            },
+                            onDeleteAllNotifications = { notificationIds ->
+                                saveDeletedNotificationIds(deletedNotificationIds + notificationIds)
+                            },
                             onProfileChange = { nextName, nextAvatar, nextBio, nextGenre ->
                                 profileName = nextName
                                 avatarUrl = nextAvatar
@@ -200,6 +250,14 @@ class MainActivity : ComponentActivity() {
                         onDelete = {
                             viewModel.deleteMovie(screen.movie)
                             currentScreen = Screen.List
+                        },
+                        onComplaintSubmit = { reason, description, onResult ->
+                            viewModel.submitComplaint(
+                                movieId = screen.movie.id.toString(),
+                                reason = reason,
+                                description = description,
+                                onResult = onResult
+                            )
                         }
                     )
                     is Screen.Edit -> MovieEditScreen(

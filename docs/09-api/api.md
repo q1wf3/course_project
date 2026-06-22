@@ -19,11 +19,15 @@ http://localhost:8080/api
 | PUT | `/movies/{movieId}` | Обновление фильма | USER |
 | PUT | `/movies/{movieId}/status` | Изменение статуса просмотра | USER |
 | DELETE | `/movies/{movieId}` | Удаление фильма | USER |
-| GET | `/admin/stats` | Общая статистика пользователей и коллекций | ADMIN |
+| GET | `/complaints/my` | Уведомления пользователя по его жалобам | USER |
+| POST | `/complaints` | Отправка жалобы на фильм | USER |
+| GET | `/admin/stats` | Общая статистика пользователей, коллекций и открытых жалоб | ADMIN |
 | GET | `/admin/users` | Список учетных записей | ADMIN |
 | GET | `/admin/users/{userId}/movies` | Коллекция выбранного пользователя | ADMIN |
 | PUT | `/admin/users/{userId}/role?role=ADMIN` | Изменение роли пользователя | ADMIN |
 | DELETE | `/admin/users/{userId}` | Удаление учетной записи | ADMIN |
+| GET | `/admin/complaints` | Список жалоб пользователей | ADMIN |
+| PUT | `/admin/complaints/{complaintId}/status` | Изменение статуса жалобы | ADMIN |
 
 Все защищенные endpoints принимают заголовок:
 
@@ -71,6 +75,19 @@ admin@movie.local / admin123
   "favorite": false
 }
 ```
+
+
+## Пример запроса жалобы
+
+```json
+{
+  "movieId": "uuid-movie-id",
+  "reason": "Ошибка в карточке фильма",
+  "description": "В карточке указан неверный режиссер"
+}
+```
+
+Администратор видит жалобу в панели управления, пишет сообщение пользователю и переводит ее в статусы `IN_PROGRESS`, `RESOLVED` или `REJECTED`. Пользователь видит ответ в профиле через кнопку уведомлений.
 
 ## OpenAPI
 
